@@ -2,4 +2,4 @@
 
 % Copyright 2025 The MathWorks, Inc.
 
-open('StabililityAnalysis.mlx')
+open('StabilityAnalysis.mlx')
