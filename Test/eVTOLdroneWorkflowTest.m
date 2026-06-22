@@ -42,7 +42,7 @@ classdef eVTOLdroneWorkflowTest < matlab.unittest.TestCase
         end
 
         function ControlStabilityWorkflow(testCase)
-            evalin('base','StabililityAnalysis');
+            evalin('base','StabilityAnalysis');
         end
 
     end

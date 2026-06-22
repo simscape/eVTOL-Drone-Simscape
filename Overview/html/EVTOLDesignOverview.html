@@ -1,208 +1,358 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<!--
-This HTML was auto-generated from MATLAB code.
-To make changes, update the MATLAB code and republish this document.
-      -->
-<title>Electric Vertical Take-Off and Landing Drone Design with Simscape</title>
-<meta name="generator" content="MATLAB 24.2">
-<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
-<meta name="DC.date" content="2025-04-08">
-<meta name="DC.source" content="EVTOLDesignOverview.m">
-<style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+    <meta charset="utf-8">
+    <title>Electric VTOL Drone Design with Simscape</title>
+    <!--
+    ============================================================
+    DOCUMENTATION TEMPLATE - MathWorks Style
+    ============================================================
+    Enhanced: Card grids preserve original size on browser resize.
+    A page-level horizontal scrollbar appears when the viewport
+    is too narrow to fit the content at its natural width.
+    Changes from original:
+      - .card-grid and .example-grid use fixed-width columns (no shrinking)
+      - .content has a min-width so the entire page scrolls horizontally
+      - Cards stay readable at all browser widths
+    ============================================================
+    -->
+    <style>
+        body { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #212121; }
+        a { color: #0076a8; text-decoration: none; }
+        a:hover { color: #004c6d; text-decoration: underline; }
 
-html { min-height:100%; margin-bottom:1px; }
-html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
-html body td { vertical-align:top; text-align:left; }
+        /* Fixed title bar */
+        .page-title {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: #fff; border-bottom: 1px solid #e0e0e0;
+            margin: 0; z-index: 200;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .page-title .title-text {
+            font-size: 28px; font-weight: 400; color: #c04c0b;
+            padding: 14px 20px;
+        }
+        .page-title .title-logo {
+            padding: 6px 20px;
+        }
+        .page-title .title-logo img {
+            height: 50px; width: auto;
+        }
 
-h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
-h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
-h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+        /* Left sidebar */
+        .sidebar {
+            position: fixed; top: 60px; left: 0;
+            width: 160px; height: calc(100vh - 60px);
+            background: #f7f7f7; border-right: 1px solid #e0e0e0;
+            padding: 20px 12px; overflow-y: auto;
+        }
+        .sidebar ul { list-style: none; padding: 0; margin: 0; }
+        .sidebar li { margin: 6px 0; }
+        .sidebar li.sub { padding-left: 14px; }
 
-a { color:#005fce; text-decoration:none; }
-a:hover { color:#005fce; text-decoration:underline; }
-a:visited { color:#004aa0; text-decoration:none; }
+        /* Right content area - min-width prevents shrinking below card grid width */
+        .content {
+            margin-left: 160px;
+            padding: 90px 40px 30px;
+            max-width: 800px;
+            min-width: 760px;
+        }
 
-p { padding:0px; margin:0px 0px 20px; }
-img { padding:0px; margin:0px 0px 20px; border:none; }
-p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+        h1 { font-size: 20px; font-weight: 700; color: #c04c0b; margin: 30px 0 8px; scroll-margin-top: 90px;
+             border-bottom: 1px solid #e0e0e0; padding-bottom: 8px; }
+        h2 { font-size: 16px; font-weight: 700; color: #212121; margin: 22px 0 6px; scroll-margin-top: 90px; }
+        p { margin: 8px 0; line-height: 1.6; color: #212121; }
 
-ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
-ul li { padding:0px; margin:0px 0px 7px 0px; }
-ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
-ul li ol li { list-style:decimal; }
-ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
-ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
-ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
-ol li ol li { list-style-type:lower-alpha; }
-ol li ul { padding-top:7px; }
-ol li ul li { list-style:square; }
+        .code {
+            background: #f5f5f5; border-left: 3px solid #0076a8;
+            padding: 10px 14px; margin: 10px 0 20px;
+            font-family: 'Courier New', monospace; font-size: 12px; color: #212121;
+        }
 
-.content { font-size:1.2em; line-height:140%; padding: 20px; }
+        /* Collapsible sub-headings */
+        .collapsible {
+            cursor: pointer; display: flex; align-items: center; user-select: none;
+        }
+        .collapsible::before {
+            content: '\25B6'; font-size: 10px; color: #0076a8;
+            margin-right: 8px; transition: transform 0.2s;
+        }
+        .collapsible.open::before { transform: rotate(90deg); }
+        .collapse-body { display: none; padding-left: 18px; }
+        .collapse-body.open { display: block; }
 
-pre, code { font-size:12px; }
-tt { font-size: 1.2em; }
-pre { margin:0px 0px 20px; }
-pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
-pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
-pre.error { color:red; }
+        /* Example cards - 3 column grid with fixed-width cards */
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 200px);
+            gap: 16px;
+            min-width: max-content;
+        }
+        .example-card {
+            border: 1px solid #e0e0e0; border-radius: 3px;
+            padding: 12px; background: #fff;
+            width: 200px;
+        }
+        .example-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .example-card .thumb {
+            display: block; width: 100%; height: 80px; margin-bottom: 8px;
+            border: 1px solid #d0e4ef; object-fit: cover;
+        }
+        .example-card .card-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+        .example-card .card-title a { color: #0076a8; }
+        .example-card .card-desc { font-size: 11px; color: #555; line-height: 1.5; }
 
-@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
-
-span.keyword { color:#0000FF }
-span.comment { color:#228B22 }
-span.string { color:#A020F0 }
-span.untermstring { color:#B20000 }
-span.syscmd { color:#B28C00 }
-span.typesection { color:#A0522D }
-
-.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
-.footer p { margin:0px; }
-.footer a { color:#878787; }
-.footer a:hover { color:#878787; text-decoration:underline; }
-.footer a:visited { color:#878787; }
-
-table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
-table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
-
-
-
-
-
-  </style>
+        /* Model cards (workflow cards) - fixed-width cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 220px);
+            gap: 1.5rem;
+            min-width: max-content;
+        }
+        .model-card {
+            background: #fff; border: 1px solid #0076a8;
+            border-radius: 4px; overflow: hidden;
+            transition: box-shadow 0.2s, transform 0.15s;
+            width: 220px;
+        }
+        .model-card:hover {
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+        }
+        .card-header-bar {
+            height: 3px; background: #0076a8;
+        }
+        .card-image {
+            width: 100%; height: 100px; object-fit: contain;
+            background: #f0f4f8; border-bottom: 1px solid #e0e0e0; padding: 6px;
+            box-sizing: border-box;
+        }
+        .card-content {
+            padding: 0.8rem;
+        }
+        .card-content h3 {
+            margin: 0 0 0.3rem 0; font-size: 12px; font-weight: 600;
+            color: #212121; line-height: 1.4;
+        }
+        .card-content p {
+            margin: 0 0 0.6rem 0; font-size: 11px;
+            color: #555; line-height: 1.5;
+        }
+        .card-actions {
+            display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem;
+        }
+        .btn-load {
+            padding: 6px 12px; border: none; border-radius: 4px;
+            font-size: 11px; font-weight: 500; cursor: pointer;
+            transition: background 0.2s; text-decoration: none;
+            display: inline-block; white-space: nowrap;
+        }
+        .btn-load.btn-primary {
+            background: #0076a8; color: #fff;
+        }
+        .btn-load.btn-primary:hover {
+            background: #005a7c; text-decoration: none; color: #fff;
+        }
+        .btn-load.btn-secondary {
+            background: #f5f5f5; color: #0076a8; border: 1px solid #e0e0e0;
+        }
+        .btn-load.btn-secondary:hover {
+            background: #e8f4f8;
+        }
+        .card-code {
+            margin-top: 0.5rem; padding: 0.4rem 0.6rem;
+            background: #f5f5f5; border: 1px solid #e0e0e0;
+            border-radius: 4px; font-family: 'Courier New', monospace;
+            font-size: 11px; color: #212121;
+            word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap;
+        }
+    </style>
 </head>
 <body>
-<div class="content">
-<h1>Electric Vertical Take-Off and Landing Drone Design with Simscape</h1>
-<!--introduction-->
-<p>This repository provides a framework for the design and analysis of Vertical Take-Off and Landing (VTOL) drone systems, including battery sizing, powertrain component design, and control system tuning across various flight modes.</p>
-<!--/introduction-->
-<h2>Contents</h2>
-<div>
-<ul>
-<li>
-<a href="#1">Overview</a>
-</li>
-<li>
-<a href="#4">Design Workflows</a>
-</li>
-<li>
-<a href="#5">Documentation</a>
-</li>
-<li>
-<a href="#6">Models</a>
-</li>
-<li>
-<a href="#8">Acronyms</a>
-</li>
-</ul>
+
+<!-- ============================================================
+     TITLE: Edit text below
+     ============================================================ -->
+<div class="page-title">
+    <span class="title-text">Electric VTOL Drone Design with Simscape</span>
+    <span class="title-logo"><img src="../Image/MATLAB_VERSION.png" alt="MATLAB Version"></span>
 </div>
-<h2 id="1">Overview</h2>
-<p>Vertical Take-Off and Landing (VTOL) aircraft represent a transformative advancement in aviation, offering unique capabilities such as hovering, vertical flight, and efficient transitions between flight modes. As the demand for urban air mobility and advanced aerial vehicles increases, the development of efficient and reliable VTOL systems becomes crucial as eVTOLs are more efficient than quadcopters because they utilize energy-saving fixed-wing flight, whereas quadcopters depend on energy-intensive hovering. This repository shows you how to tackle VTOL design challenges by focusing on three core areas: <b>battery sizing</b>, <b>powertrain component design</b>, and <b>control system tuning</b>.</p>
-<img vspace="5" hspace="5" src="EVTOLDesignOverview_01.png" alt=""> <h2 id="4">Design Workflows</h2>
-<div>
-<ul>
-<li>
-<a href="matlab:open('BatterySizing.mlx')">Battery sizing and range estimation for EVTOL</a>
-</li>
-<li>
-<a href="matlab:open('MotorControlTuning.mlx')">Motor control tuning</a>
-</li>
-<li>
-<a href="matlab:open('StabililityAnalysis.mlx')">Hover mode tuning and stability</a>
-</li>
-<li>
-<a href="matlab:open('TuneControlFixedWingFlight.mlx')">Fixed wing tuning and stability</a>
-</li>
-</ul>
-</div>
-<h2 id="5">Documentation</h2>
-<div>
-<ul>
-<li>
-<a href="matlab:open('ModelOverview.mlx')">Model Overview</a>
-</li>
-</ul>
-</div>
-<h2 id="6">Models</h2>
-<div>
-<ul>
-<li>
-<a href="matlab:open_system('EVTOLTiltrotor.slx')">Electric Vertical Take-Off and Landing</a>
-</li>
-</ul>
-</div>
-<h2 id="8">Acronyms</h2>
-<div>
-<ul>
-<li>eVTOL : Electric Vertical Take-Off and Landing</li>
-<li>VTOL : Vertical Take-Off and Landing</li>
-</ul>
-</div>
-<p class="footer">Copyright 2025 The MathWorks, Inc.<br>
-<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2024b</a>
-<br>
-</p>
-</div>
-<!--
-##### SOURCE BEGIN #####
-%% Electric Vertical Take-Off and Landing Drone Design with Simscape
-% 
-% This repository provides a framework for the design and 
-% analysis of Vertical Take-Off and Landing (VTOL) drone systems, including 
-% battery sizing, powertrain component design, and control system tuning 
-% across various flight modes.
-%
-% Copyright 2025 The MathWorks, Inc.
 
+<!-- ============================================================
+     SIDEBAR: Add/remove <li> entries to match your content sections.
+     Use class="sub" for indented sub-section links.
+     ============================================================ -->
+<nav class="sidebar">
+    <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#get-started">Get Started</a></li>
+        <li><a href="#Workflow">Workflow</a></li>
+        <li class="sub"><a href="#app-BatterySizing">Battery Sizing</a></li>
+        <li class="sub"><a href="#app-ControlTuning">Control Tuning</a></li>
+        <li><a href="#components">Components</a></li>
+        <li><a href="#test">Testing</a></li>
+        <li><a href="#requirements">Requirements</a></li>
+    </ul>
+</nav>
 
+<!-- ============================================================
+     CONTENT: Main scrollable area. Edit sections below.
+     ============================================================ -->
+<main class="content">
 
-%% Overview
-%
-% Vertical Take-Off and Landing (VTOL) aircraft represent a transformative
-% advancement in aviation, offering unique capabilities such as hovering, 
-% vertical flight, and efficient transitions between flight modes. As the 
-% demand for urban air mobility and advanced aerial vehicles increases, the
-% development of efficient and reliable VTOL systems becomes crucial as  eVTOLs
-%  are more efficient than quadcopters because they utilize energy-saving 
-% fixed-wing flight, whereas quadcopters depend on energy-intensive hovering. This 
-% repository shows you how to tackle VTOL design challenges by focusing on 
-% three core areas: *battery sizing*, *powertrain component design*, and 
-% *control system tuning*.
+    <!-- Section: Overview -->
+    <h1 id="overview">Overview</h1>
+    <p>
+        Vertical Take-Off and Landing (VTOL) aircraft represent a transformative
+        advancement in aviation, offering unique capabilities such as hovering,
+        vertical flight, and efficient transitions between flight modes. As the
+        demand for urban air mobility and advanced aerial vehicles increases, the
+        development of efficient and reliable VTOL systems becomes crucial.
+        eVTOLs are more efficient than quadcopters because they utilize
+        energy-saving fixed-wing flight, whereas quadcopters depend on
+        energy-intensive hovering. This project contains Simscape&trade; based
+        workflows and utilities that help you tackle VTOL design challenges by
+        focusing on three core areas: <b>battery sizing</b>,
+        <b>powertrain component design</b>, and <b>control system tuning</b>.
+    </p>
 
+    <!-- Section: Get Started -->
+    <h1 id="get-started">Get Started</h1>
+    <p style="margin-left: 20px;">
+        (a) Double-click on the <a href="matlab:openProject('eVTOLDroneSimscape.prj')">
+        eVTOLDroneSimscape PRJ</a> file (in the root folder) to setup the
+        project and get started.<br>
+        (b) To learn about the system model and its architecture,
+        see <a href="matlab:open('ModelOverview.mlx')">Model Overview</a>.<br>
+        (c) To open the main VTOL tiltrotor model,
+        see <a href="matlab:open_system('EVTOLTiltrotor.slx')">eVTOL Tiltrotor Model</a>.<br>
+    </p>
 
-%%
-open_system('EVTOLTiltrotor')
-%%
+    <!-- Section: Workflow (parent for collapsible sub-sections) -->
+    <h1 id="Workflow">Workflow</h1>
 
+    <p>
+        Click on the hyperlinks to navigate to the application workflows or
+        live-scripts.
+    </p>
 
-%% Design Workflows
-%
-% * <matlab:open('BatterySizing.mlx') Battery sizing and range estimation for EVTOL>
-% * <matlab:open('MotorControlTuning.mlx') Motor control tuning>
-% * <matlab:open('StabililityAnalysis.mlx') Hover mode tuning and stability>
-% * <matlab:open('TuneControlFixedWingFlight.mlx') Fixed wing tuning and stability>
-%
+    <!-- Sub-section: BatterySizing (collapsible, with card grid) -->
+    <h2 id="app-BatterySizing" class="collapsible" onclick="toggle(this)">Battery Sizing</h2>
+    <div class="collapse-body">
+        <div class="card-grid">
+            <div class="model-card">
+                <div class="card-header-bar"></div>
+                <img class="card-image" src="../../Images/Battery_Icon.png" alt="Battery Sizing">
+                <div class="card-content">
+                    <h3>Battery Sizing and Range Estimation</h3>
+                    <p>Size the battery pack for the eVTOL drone and estimate
+                        range across different flight profiles including hover,
+                        cruise, and transition phases.</p>
+                    <div class="card-actions">
+                        <a href="matlab:edit('BatterySizing.mlx')" class="btn-load btn-primary">Open Live Script</a>
+                        <button class="btn-load btn-secondary" onclick="copyCommand(this, &quot;edit('BatterySizing.mlx')&quot;)">Copy Command</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-%% Documentation
-% 
-% * <matlab:open('ModelOverview.mlx') Model Overview>
-% 
+    <!-- Sub-section: ControlTuning (collapsible, with card grid) -->
+    <h2 id="app-ControlTuning" class="collapsible" onclick="toggle(this)">Control Tuning</h2>
+    <div class="collapse-body">
+        <div class="card-grid">
+            <div class="model-card">
+                <div class="card-header-bar"></div>
+                <img class="card-image" src="../../Images/MotorTuningPlots.png" alt="Motor Control">
+                <div class="card-content">
+                    <h3>Motor Control Tuning</h3>
+                    <p>Tune the motor controller gains for optimal torque response
+                        and stability across the operating envelope of the propulsion motors.</p>
+                    <div class="card-actions">
+                        <a href="matlab:edit('MotorControlTuning.mlx')" class="btn-load btn-primary">Open Live Script</a>
+                        <button class="btn-load btn-secondary" onclick="copyCommand(this, &quot;edit('MotorControlTuning.mlx')&quot;)">Copy Command</button>
+                    </div>
+                </div>
+            </div>
+            <div class="model-card">
+                <div class="card-header-bar"></div>
+                <img class="card-image" src="../../Images/HoverRangePlot.png" alt="Hover Stability">
+                <div class="card-content">
+                    <h3>Hover Mode Tuning and Stability</h3>
+                    <p>Tune flight controller parameters for stable hover performance.
+                        Analyze stability margins and step response characteristics
+                        in the hover flight regime.</p>
+                    <div class="card-actions">
+                        <a href="matlab:edit('StabilityAnalysis.mlx')" class="btn-load btn-primary">Open Live Script</a>
+                        <button class="btn-load btn-secondary" onclick="copyCommand(this, &quot;edit('StabilityAnalysis.mlx')&quot;)">Copy Command</button>
+                    </div>
+                </div>
+            </div>
+            <div class="model-card">
+                <div class="card-header-bar"></div>
+                <img class="card-image" src="../../Images/AngleOfAttackPlot.png" alt="Fixed Wing">
+                <div class="card-content">
+                    <h3>Fixed Wing Tuning and Stability</h3>
+                    <p>Tune the flight control system for cruise (fixed-wing) mode.
+                        Analyze longitudinal and lateral stability during forward flight
+                        and transition phases.</p>
+                    <div class="card-actions">
+                        <a href="matlab:edit('TuneControlFixedWingFlight.mlx')" class="btn-load btn-primary">Open Live Script</a>
+                        <button class="btn-load btn-secondary" onclick="copyCommand(this, &quot;edit('TuneControlFixedWingFlight.mlx')&quot;)">Copy Command</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-%% Models
-%
-% * <matlab:open_system('EVTOLTiltrotor.slx') Electric Vertical Take-Off and Landing>
+    <!-- Section: Components -->
+    <h1 id="components">Components</h1>
+    <p>
+        This project includes the following component subsystems: Battery, Motor,
+        Propeller, and Vehicle (Airframe Powertrain). Each component has dedicated
+        test harness models in its respective <code>HarnessModel</code> folder.
+    </p>
 
-%%
+    <!-- Section: Testing -->
+    <h1 id="test">Testing</h1>
+    <p>
+        You can run tests in this project by running the test runner
+        <a href="matlab:run('eVTOLdroneTestRunner')">eVTOLdroneTestRunner</a>.
+    </p>
 
-%% Acronyms
-% * eVTOL   : Electric Vertical Take-Off and Landing
-% * VTOL    : Vertical Take-Off and Landing
+    <!-- Section: Requirements -->
+    <h1 id="requirements">Requirements</h1>
+    <p>This project requires:</p>
+    <p style="margin-left: 20px;">
+        MATLAB&reg;, Simulink&reg;, Simscape&trade;, Simscape Battery&trade;,
+        Simscape Driveline&trade;, Simscape Electrical&trade;,
+        Simscape Multibody&trade;, Stateflow&trade;,
+        Aerospace Blockset&trade;, Control System Toolbox&trade;,
+        Simulink Test&trade;, MATLAB Test&trade;
+    </p>
 
-##### SOURCE END #####
--->
+    <p>
+        <br> <br>
+        <i>Copyright 2025 - 2026 The MathWorks, Inc.</i>
+    </p>
+
+</main>
+
+<!-- Toggle script for collapsible sub-headings (do not remove) -->
+<script>
+function toggle(el) {
+    el.classList.toggle('open');
+    el.nextElementSibling.classList.toggle('open');
+}
+
+function copyCommand(btn, cmd) {
+    navigator.clipboard.writeText(cmd).then(function() {
+        var original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = original; }, 1500);
+    });
+}
+</script>
+
 </body>
 </html>

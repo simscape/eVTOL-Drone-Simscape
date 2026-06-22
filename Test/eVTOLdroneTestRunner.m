@@ -49,5 +49,11 @@ addPlugin(runner, CC_Plugin);
 % Run tests
 results = run(runner, suite);
 assertSuccess(results)
+
+% Close project without save dialog
+bdclose('all');
+myDictionaryObj = Simulink.data.dictionary.open('VTOLDynamicsData.sldd');
+discardChanges(myDictionaryObj);
+close(myDictionaryObj);
 proj = currentProject;
 close(proj);
